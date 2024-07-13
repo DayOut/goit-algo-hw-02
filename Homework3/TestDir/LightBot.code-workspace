@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "LightBot",
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"vector": "cpp"
+		}
+	}
+}
