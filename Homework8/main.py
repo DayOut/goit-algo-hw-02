@@ -1,28 +1,26 @@
 import heapq
 
 
-def merge_k_lists(lists):
-    min_heap = []
+def min_cost_to_connect_cables(cables):
+    # Перетворюємо список кабелів на heap
+    heapq.heapify(cables)
+    total_cost = 0
 
-    # Поміщаємо початкові елементи всіх списків у купу
-    for i, lst in enumerate(lists):
-        if lst:
-            heapq.heappush(min_heap, (lst[0], i, 0))
+    # Поки в купі більше одного кабелю
+    while len(cables) > 1:
+        # Виймаємо два найменші кабелі
+        first = heapq.heappop(cables)
+        second = heapq.heappop(cables)
 
-    result = []
+        # Вартість їх з'єднання
+        cost = first + second
+        total_cost += cost
 
-    while min_heap:
-        val, list_idx, element_idx = heapq.heappop(min_heap)
-        result.append(val)
+        # Додаємо новий кабель назад у купу
+        heapq.heappush(cables, cost)
 
-        # Якщо є наступний елемент у тому ж списку, додаємо його в купу
-        if element_idx + 1 < len(lists[list_idx]):
-            heapq.heappush(min_heap, (lists[list_idx][element_idx + 1], list_idx, element_idx + 1))
-
-    return result
+    return total_cost
 
 
-# Приклад використання
-lists = [[1, 4, 5], [1, 3, 4], [2, 6]]
-merged_list = merge_k_lists(lists)
-print("Відсортований список:", merged_list)
+cables = [4, 3, 2, 6]
+print("Мінімальні витрати на об'єднання кабелів:", min_cost_to_connect_cables(cables))
