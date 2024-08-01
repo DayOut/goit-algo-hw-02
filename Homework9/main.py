@@ -1,3 +1,5 @@
+import timeit
+
 def find_coins_greedy(amount):
     coins = [50, 25, 10, 5, 2, 1]
     result = {}
@@ -33,8 +35,21 @@ def find_min_coins(amount):
 
 
 # Testing the functions
-print("Greedy Algorithm:")
+print("Greedy Algorithm result: ", end="")
 print(find_coins_greedy(113))  # Output: {50: 2, 10: 1, 2: 1, 1: 1}
 
-print("Dynamic Programming Algorithm:")
+print("Dynamic Programming Algorithm result: ", end="")
 print(find_min_coins(113))  # Output: {1: 1, 2: 1, 10: 1, 50: 2}
+
+test_amounts = [113, 1000, 5678, 12345, 100000]
+for amount in test_amounts:
+    print(f"\nTesting {amount}:")
+
+    time_greedy = timeit.timeit(lambda: find_coins_greedy(amount), number=20)
+    print(f"{"Greedy Algorithm:":<30} {"{:.10f}".format(time_greedy)}")
+
+    # print("{:.10f}".format(time_greedy))
+    # print("Dynamic Programming Algorithm:", end="")
+    time_dp = timeit.timeit(lambda: find_min_coins(amount), number=20)
+    print(f"{"Dynamic Programming Algorithm:":<30} {"{:.10f}".format(time_dp)}")
+    # print("{:.10f}".format(time_dp))
