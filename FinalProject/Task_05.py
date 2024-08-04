@@ -37,10 +37,12 @@ def draw_tree_animation(tree_root, order, order_type="DFS"):
     labels = {node[0]: node[1]['label'] for node in tree.nodes(data=True)}
 
     def update(num):
-        node = order[num]
-        colors = ['red' if n == node.id else 'skyblue' for n in tree.nodes()]
-        nx.draw(tree, pos=pos, labels=labels, node_color=colors, node_size=2500, arrows=False, ax=ax)
-        ax.set_title(f"{order_type} Order Step {num + 1}: Visiting Node {node.val}")
+        colors = ['skyblue' for _ in tree.nodes()]
+        for idx, node in enumerate(order[:num + 1]):
+            node_intensity = idx / len(order)
+            colors[list(tree.nodes()).index(node.id)] = (0, 0, 1 - 0.7 * node_intensity)
+            nx.draw(tree, pos=pos, labels=labels, node_color=colors, node_size=2500, arrows=False, ax=ax)
+            ax.set_title(f"{order_type} Order Step {num + 1}: Visiting Node {node.val}")
 
     ani = animation.FuncAnimation(fig, update, frames=len(order), repeat=True)
     plt.show()
