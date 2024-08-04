@@ -1,6 +1,7 @@
 import uuid
 import networkx as nx
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 import heapq
 
 class Node:
@@ -26,14 +27,22 @@ def add_edges(graph, node, pos, x=0, y=0, layer=1):
             r = add_edges(graph, node.right, pos, x=r, y=y - 1, layer=layer + 1)
     return graph
 
-def draw_tree(tree_root):
-    tree = nx.DiGraph()
+def draw_tree_animation(tree_root, order, order_type="DFS"):
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    # Отримуємо позиції та кольори вузлів
     pos = {tree_root.id: (0, 0)}
-    tree = add_edges(tree, tree_root, pos)
+    tree = add_edges(nx.DiGraph(), tree_root, pos)
     colors = [node[1]['color'] for node in tree.nodes(data=True)]
     labels = {node[0]: node[1]['label'] for node in tree.nodes(data=True)}
-    plt.figure(figsize=(12, 8))
-    nx.draw(tree, pos=pos, labels=labels, arrows=False, node_size=2500, node_color=colors)
+
+    def update(num):
+        node = order[num]
+        colors = ['red' if n == node.id else 'skyblue' for n in tree.nodes()]
+        nx.draw(tree, pos=pos, labels=labels, node_color=colors, node_size=2500, arrows=False, ax=ax)
+        ax.set_title(f"{order_type} Order Step {num + 1}: Visiting Node {node.val}")
+
+    ani = animation.FuncAnimation(fig, update, frames=len(order), repeat=True)
     plt.show()
 
 def heapify(arr):
@@ -50,36 +59,38 @@ def heapify(arr):
                 nodes[parent].right = node
     return nodes[0]
 
-def dfs(node, visited=None):
+
+def dfs(node, visited=None, order=None):
     if visited is None:
-        visited = []
-    if node:
-        visited.append(node.val)
-        dfs(node.left, visited)
-        dfs(node.right, visited)
-    return visited
+        visited = set()
+    if order is None:
+        order = []
+    if node and node.id not in visited:
+        visited.add(node.id)
+        order.append(node)
+        dfs(node.left, visited, order)
+        dfs(node.right, visited, order)
+    return order
 
 def bfs(root):
-    visited = []
+    visited, order = set(), []
     queue = [root]
     while queue:
         node = queue.pop(0)
-        if node:
-            visited.append(node.val)
+        if node and node.id not in visited:
+            visited.add(node.id)
+            order.append(node)
             queue.append(node.left)
             queue.append(node.right)
-    return visited
+    return order
 
 # Приклад масиву значень
 values = [3, 9, 2, 1, 4, 5]
 
-# Створення купи та відображення дерева
+# Створення купи та анімація обходу
 root = heapify(values)
-draw_tree(root)
+dfs_order = dfs(root)
+bfs_order = bfs(root)
 
-# Виконання обходу в глибину та в ширину
-dfs_result = dfs(root)
-bfs_result = bfs(root)
-
-print("DFS Order:", dfs_result)
-print("BFS Order:", bfs_result)
+draw_tree_animation(root, dfs_order, "DFS")
+draw_tree_animation(root, bfs_order, "BFS")
