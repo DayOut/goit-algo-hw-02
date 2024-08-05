@@ -13,24 +13,30 @@ def greedy_algorithm(items, budget):
     return selected_items, total_calories
 
 def dynamic_programming(items, budget):
-    # Вибираємо всі можливі вартості від 0 до бюджету
-    dp = [0] * (budget + 1)
+    # Створюємо список страв з їхніми витратами та калорійністю
+    item_list = [(name, details['cost'], details['calories']) for name, details in items.items()]
 
-    for cost in range(1, budget + 1):
-        for item, info in items.items():
-            if cost >= info['cost']:
-                dp[cost] = max(dp[cost], dp[cost - info['cost']] + info['calories'])
+    dp = [[0] * (budget + 1) for _ in range(len(item_list) + 1)]
 
-    # Знаходимо оптимальний набір
-    optimal_set = []
-    while budget > 0:
-        for item, info in items.items():
-            if budget >= info['cost'] and dp[budget] == dp[budget - info['cost']] + info['calories']:
-                optimal_set.append(item)
-                budget -= info['cost']
-                break
+    # Заповнюємо dp таблицю
+    for i in range(1, len(item_list) + 1):
+        name, cost, calories = item_list[i - 1]
+        for j in range(budget + 1):
+            if j >= cost:
+                dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - cost] + calories)
+            else:
+                dp[i][j] = dp[i - 1][j]
 
-    return optimal_set, dp[-1]
+    # Визначаємо набір предметів, які дають максимальну калорійність
+    result = []
+    j = budget
+    for i in range(len(item_list), 0, -1):
+        if dp[i][j] != dp[i - 1][j]:
+            name, cost, calories = item_list[i - 1]
+            result.append(name)
+            j -= cost
+
+    return result, dp[len(item_list)][budget]
 
 items = {
     "pizza": {"cost": 50, "calories": 300}, # 6 calories per cent
